@@ -10,21 +10,10 @@ export default async function handler(req, res) {
       await client.connect();
     }
 
-    // List ALL databases visible to this URI
-    const adminDb = client.db().admin();
-    const dbs = await adminDb.listDatabases();
-
-    // Read from your intended DB
     const db = client.db("mohit_raturi_db");
-    const collections = await db.listCollections().toArray();
     const data = await db.collection("appointments").find({}).toArray();
 
-    res.json({
-      databases: dbs.databases.map(d => d.name),
-      collections: collections.map(c => c.name),
-      count: data.length,
-      data
-    });
+    res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
