@@ -10,17 +10,22 @@ export default async function handler(req, res) {
       await client.connect();
     }
 
-    // ✅ MUST MATCH ATLAS EXACTLY
-    const db = client.db("mohit_raturi_db");
-    const data = await db
-      .collection("appointments")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    // List ALL databases visible to this URI
+    const adminDb = client.db().admin();
+    const dbs = await adminDb.listDatabases();
 
-    res.status(200).json(data);
+    // Read from your intended DB
+    const db = client.db("mohit_raturi_db");
+    const collections = await db.listCollections().toArray();
+    const data = await db.collection("appointments").find({}).toArray();
+
+    res.json({
+      databases: dbs.databases.map(d => d.name),
+      collections: collections.map(c => c.name),
+      count: data.length,
+      data
+    });
   } catch (err) {
-    console.error("Mongo Error:", err);
     res.status(500).json({ error: err.message });
   }
 }
