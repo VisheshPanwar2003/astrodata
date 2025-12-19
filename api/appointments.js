@@ -1,3 +1,9 @@
+export default function handler(req, res) {
+  res.json({
+    envExists: !!process.env.MONGODB_URI1,
+    envKeys: Object.keys(process.env)
+  });
+}
 import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI1;
@@ -26,3 +32,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
