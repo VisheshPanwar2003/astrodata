@@ -1,12 +1,6 @@
-export default function handler(req, res) {
-  res.json({
-    envExists: !!process.env.MONGODB_URI1,
-    envKeys: Object.keys(process.env)
-  });
-}
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI1;
+const uri = process.env.MONGODB_URI;
 let client;
 
 export default async function handler(req, res) {
@@ -21,15 +15,11 @@ export default async function handler(req, res) {
     }
 
     const db = client.db("websiteDB");
-    const data = await db
-      .collection("appointments")
-      .find({})
-      .toArray();
+    const data = await db.collection("appointments").find({}).toArray();
 
     res.status(200).json(data);
   } catch (err) {
-    console.error("Mongo Error:", err);
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 }
-
