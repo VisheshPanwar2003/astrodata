@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Appointments</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.card p {
+  margin: 6px 0;
+  color: #555;
+}
+
+.label {
+  font-weight: bold;
+  color: #000;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Appointment Requests</h2>
+<div id="data"></div>
+
+<script>
+fetch("/api/appointments")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("data");
+
+    if (data.length === 0) {
+      container.innerHTML = "<p>No data found.</p>";
+      return;
+    }
+
+    data.forEach(item => {
+      const date = new Date(item.createdAt).toLocaleString();
+
+      container.innerHTML += `
+        <div class="card">
+          <h3>${item.fullName}</h3>
+
+          <p><span class="label">Email:</span> ${item.email}</p>
+          <p><span class="label">Mobile:</span> ${item.countryCode} ${item.mobile}</p>
+          <p><span class="label">Client Type:</span> ${item.clientType}</p>
+          <p><span class="label">Consult For:</span> ${item.consultFor}</p>
+          <p><span class="label">Marital Status:</span> ${item.maritalStatus}</p>
+          <p><span class="label">Purpose:</span> ${item.purpose}</p>
+          <p><span class="label">Submitted At:</span> ${date}</p>
+        </div>
+      `;
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("data").innerHTML = "<p>Error loading data.</p>";
+  });
+</script>
+
+</body>
+</html>
