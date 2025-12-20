@@ -6,7 +6,7 @@
 <title>Appointment Requests</title>
 
 <style>
-/* ====== RESET ====== */
+/* ===== RESET ===== */
 * {
   margin: 0;
   padding: 0;
@@ -20,7 +20,7 @@ body {
   color: #222;
 }
 
-/* ====== HEADER ====== */
+/* ===== HEADER ===== */
 .header {
   margin-bottom: 25px;
 }
@@ -32,36 +32,36 @@ body {
 
 .header p {
   color: #666;
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
-/* ====== GRID ====== */
+/* ===== GRID ===== */
 .appointments {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
 }
 
-/* ====== CARD ====== */
+/* ===== CARD ===== */
 .card {
   background: #fff;
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 20px;
+  border: 1px solid #eef1f7;
   box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
 }
 
-/* ====== CARD HEADER ====== */
+/* ===== CARD HEADER ===== */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
 }
 
 .name {
@@ -71,17 +71,17 @@ body {
 
 .badge {
   font-size: 12px;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 20px;
-  background: #e7f0ff;
-  color: #1d4ed8;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
   font-weight: 600;
 }
 
-/* ====== INFO ====== */
+/* ===== INFO ===== */
 .info {
   font-size: 14px;
-  margin-bottom: 6px;
+  margin-top: 8px;
   color: #444;
 }
 
@@ -90,7 +90,32 @@ body {
   color: #000;
 }
 
-/* ====== PURPOSE ====== */
+/* ===== TOGGLE BUTTON ===== */
+.toggle-btn {
+  margin-top: 12px;
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ===== DETAILS (COLLAPSIBLE) ===== */
+.details {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.details.open {
+  max-height: 600px;
+  opacity: 1;
+  margin-top: 10px;
+}
+
+/* ===== PURPOSE ===== */
 .purpose {
   margin-top: 10px;
   font-size: 14px;
@@ -99,7 +124,7 @@ body {
   border-radius: 8px;
 }
 
-/* ====== FOOTER ====== */
+/* ===== FOOTER ===== */
 .footer {
   margin-top: 15px;
   display: flex;
@@ -109,14 +134,10 @@ body {
   color: #777;
 }
 
-.date {
-  font-style: italic;
-}
-
-/* ====== ACTION BUTTONS ====== */
+/* ===== ACTION BUTTONS ===== */
 .actions button {
   border: none;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
@@ -128,16 +149,24 @@ body {
   color: #fff;
 }
 
+.btn-contacted:hover {
+  background: #16a34a;
+}
+
 .btn-delete {
   background: #ef4444;
   color: #fff;
   margin-left: 6px;
 }
 
-/* ====== EMPTY STATE ====== */
+.btn-delete:hover {
+  background: #dc2626;
+}
+
+/* ===== EMPTY STATE ===== */
 .empty {
   text-align: center;
-  margin-top: 60px;
+  margin-top: 70px;
   color: #666;
 }
 </style>
@@ -163,23 +192,33 @@ fetch("/api/appointments")
     const container = document.getElementById("appointments");
     const empty = document.getElementById("empty");
 
-    if (!data.length) {
+    if (!data || data.length === 0) {
       empty.style.display = "block";
       return;
     }
 
+    const fragment = document.createDocumentFragment();
+
     data.forEach(item => {
-      const date = new Date(item.createdAt).toLocaleString();
+      const card = document.createElement("div");
+      card.className = "card";
 
-      container.innerHTML += `
-        <div class="card">
-          <div class="card-header">
-            <div class="name">${item.fullName}</div>
-            <div class="badge">${item.clientType}</div>
-          </div>
+      const date = item.createdAt
+        ? new Date(item.createdAt).toLocaleString()
+        : "—";
 
-          <div class="info"><span>Email:</span> ${item.email}</div>
-          <div class="info"><span>Mobile:</span> ${item.countryCode} ${item.mobile}</div>
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="name">${item.fullName}</div>
+          <div class="badge">${item.clientType}</div>
+        </div>
+
+        <div class="info"><span>Email:</span> ${item.email}</div>
+        <div class="info"><span>Mobile:</span> ${item.country} ${item.mobile}</div>
+
+        <button class="toggle-btn">View Details</button>
+
+        <div class="details">
           <div class="info"><span>Consult For:</span> ${item.consultFor}</div>
           <div class="info"><span>Marital Status:</span> ${item.maritalStatus}</div>
 
@@ -197,6 +236,21 @@ fetch("/api/appointments")
           </div>
         </div>
       `;
+
+      fragment.appendChild(card);
+    });
+
+    container.appendChild(fragment);
+
+    // Expand / collapse logic
+    document.querySelectorAll(".toggle-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const details = btn.nextElementSibling;
+        details.classList.toggle("open");
+        btn.textContent = details.classList.contains("open")
+          ? "Hide Details"
+          : "View Details";
+      });
     });
   })
   .catch(() => {
